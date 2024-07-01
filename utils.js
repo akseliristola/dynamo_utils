@@ -29,6 +29,11 @@ function parseDynamoObj(dynamodbItem) {
 
 
   function objectToDynamodb(item) {
+    if(Array.isArray(item)){
+      const marshalled = {L:item.map(v=>objectToDynamodb(v))}
+      return marshalled
+    }
+
       const marshalled = {};
       for (const key in item) {
         const value = item[key];
