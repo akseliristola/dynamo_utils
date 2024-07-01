@@ -14,10 +14,10 @@ function parseDynamoObj(dynamodbItem) {
             if (v.M !== undefined) {
               return unmarshall(v.M);
             }
-            return parseDynamoObj(v);
+            return unmarshall(v);
           });
         } else if (value.M !== undefined) {
-          unmarshalled[key] = parseDynamoObj(value.M);
+          unmarshalled[key] = unmarshall(value.M);
         } else if (value.NULL !== undefined) {
           unmarshalled[key] = null;
         }
