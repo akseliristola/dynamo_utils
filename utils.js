@@ -29,29 +29,27 @@ function parseDynamoObj(dynamodbItem) {
 
 
   function objectToDynamodb(item) {
+    let marshalled
     if(Array.isArray(item)){
-      const marshalled = {L:item.map(v=>objectToDynamodb(v))}
-      return marshalled
+      marshalled = {L:item.map(v=>objectToDynamodb(v))}
+    }
+    else if(typeof item==="string"){
+       marshalled = {S:item}
+    }
+    else if(typeof item==="number"){
+       marshalled = {N:item.toString()}
+    }
+    else if(typeof item==="boolean"){
+       marshalled = {BOOL:item}
+    }
+    else if(item===null){
+      marshalled = {NULL:true}
+    }
+    else if (typeof item === 'object') {
+      marshalled = { M: objectToDynamodb(value) };
     }
 
-      const marshalled = {};
-      for (const key in item) {
-        const value = item[key];
-        if (typeof value === 'string') {
-          marshalled[key] = { S: value };
-        } else if (typeof value === 'number') {
-          marshalled[key] = { N: value.toString() };
-        } else if (typeof value === 'boolean') {
-          marshalled[key] = { BOOL: value };
-        } else if (Array.isArray(value)) {
-          marshalled[key] = { L: value.map((v) => (typeof v === 'object' ? { M: objectToDynamodb(v) } : objectToDynamodb({ value: v }).value)) };
-        } else if (value === null) {
-          marshalled[key] = { NULL: true };
-        } else if (typeof value === 'object') {
-          marshalled[key] = { M: objectToDynamodb(value) };
-        }
-      }
-      return marshalled;
+    return marshalled
 
   }
 
