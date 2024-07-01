@@ -1,4 +1,12 @@
-function parseDynamoObj(dynamodbItem) {
+function parseDynamoObj(item) {
+
+  if(Array.isArray(item)){
+    return item.map(n=>parseDynamoObj(n))
+  }
+  else if(typeof item !== "object"){
+    return item
+  }
+  
     const unmarshall = (item) => {
       const unmarshalled = {};
       for (const key in item) {
@@ -24,7 +32,7 @@ function parseDynamoObj(dynamodbItem) {
       }
       return unmarshalled;
     };
-    return unmarshall(dynamodbItem);
+    return unmarshall(item);
   }
 
 
