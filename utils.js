@@ -51,27 +51,30 @@ function parseDynamoObj(dynamodbItem) {
     }
 
 
+    function marshall(item){
       const marshalled = {};
       for (const key in item) {
         const value = item[key];
         if (typeof value === 'string') {
-          marshalled[key] = { S: value };
+          marshalled[key] = {S: value };
         } else if (typeof value === 'number') {
-          marshalled[key] = { N: value.toString() };
+          marshalled[key] = {N: value.toString() };
         } else if (typeof value === 'boolean') {
-          marshalled[key] = { BOOL: value };
+          marshalled[key] = {BOOL: value };
         } else if (Array.isArray(value)) {
-          marshalled[key] = { L: value.map((v) => objectToDynamodb(v)) };
+          marshalled[key] = {L: value.map((v) => objectToDynamodb(v)) };
         } else if (value === null) {
-          marshalled[key] = { NULL: true };
+          marshalled[key] = {NULL: true };
         } else if (typeof value === 'object') {
-          marshalled[key] = { M: objectToDynamodb(value) };
+          marshalled[key] = marshall(value);
         }
       }
       return marshalled;
+    }
+
+    return marshall({M:item})
 
   }
-
 const aa={parseDynamoObj,objectToDynamodb}
 
 module.exports=aa
