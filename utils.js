@@ -14,10 +14,10 @@ function parseDynamoObj(dynamodbItem) {
             if (v.M !== undefined) {
               return unmarshall(v.M);
             }
-            return dynamodbToObject(v);
+            return parseDynamoObj(v);
           });
         } else if (value.M !== undefined) {
-          unmarshalled[key] = dynamodbToObject(value.M);
+          unmarshalled[key] = parseDynamoObj(value.M);
         } else if (value.NULL !== undefined) {
           unmarshalled[key] = null;
         }
@@ -28,8 +28,7 @@ function parseDynamoObj(dynamodbItem) {
   }
 
 
-  function objectToDynamodb(obj) {
-    const marshall = (item) => {
+  function objectToDynamodb(item) {
       const marshalled = {};
       for (const key in item) {
         const value = item[key];
@@ -40,16 +39,15 @@ function parseDynamoObj(dynamodbItem) {
         } else if (typeof value === 'boolean') {
           marshalled[key] = { BOOL: value };
         } else if (Array.isArray(value)) {
-          marshalled[key] = { L: value.map((v) => (typeof v === 'object' ? { M: marshall(v) } : marshall({ value: v }).value)) };
+          marshalled[key] = { L: value.map((v) => (typeof v === 'object' ? { M: objectToDynamodb(v) } : objectToDynamodb({ value: v }).value)) };
         } else if (value === null) {
           marshalled[key] = { NULL: true };
         } else if (typeof value === 'object') {
-          marshalled[key] = { M: marshall(value) };
+          marshalled[key] = { M: objectToDynamodb(value) };
         }
       }
       return marshalled;
-    };
-    return marshall(obj);
+
   }
 
 const aa={parseDynamoObj,objectToDynamodb}
