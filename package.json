@@ -1,6 +1,6 @@
 {
   "name": "@nonames55/dynamodb-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Your package description",
   "main": "index.js",
   "scripts": {
