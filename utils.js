@@ -46,7 +46,7 @@ function parseDynamoObj(dynamodbItem) {
       marshalled = {NULL:true}
     }
     else if (typeof item === 'object') {
-      marshalled = { M: objectToDynamodb(value) };
+      marshalled = { M: objectToDynamodb(item) };
     }
 
     return marshalled
