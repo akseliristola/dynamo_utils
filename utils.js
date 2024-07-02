@@ -1,39 +1,30 @@
-function parseDynamoObj(item) {
+  function parseDynamoObj(item) {
+    if (Array.isArray(item)) {
+      return item.map(parseDynamoObj);
+    }
+    
+    if (typeof item !== "object" || item === null) {
+      return item;
+    }
 
-  if(Array.isArray(item)){
-    return item.map(n=>parseDynamoObj(n))
-  }
-  else if(typeof item !== "object"){
-    return item
-  }
-  
-    const unmarshall = (item) => {
-      const unmarshalled = {};
-      for (const key in item) {
-        const value = item[key];
-        if (value.S !== undefined) {
-          unmarshalled[key] = value.S;
-        } else if (value.N !== undefined) {
-          unmarshalled[key] = Number(value.N);
-        } else if (value.BOOL !== undefined) {
-          unmarshalled[key] = value.BOOL;
-        } else if (value.L !== undefined) {
-          unmarshalled[key] = value.L.map((v) => {
-            if (v.M !== undefined) {
-              return unmarshall(v.M);
-            }
-            return unmarshall(v);
-          });
-        } else if (value.M !== undefined) {
-          unmarshalled[key] = unmarshall(value.M);
-        } else if (value.NULL !== undefined) {
-          unmarshalled[key] = null;
-        }
-      }
-      return unmarshalled;
+    const parseValue = (value) => {
+      if (value.S !== undefined) return value.S;
+      if (value.N !== undefined) return Number(value.N);
+      if (value.BOOL !== undefined) return value.BOOL;
+      if (value.NULL !== undefined) return null;
+      if (value.L !== undefined) return value.L.map(parseDynamoObj);
+      if (value.M !== undefined) return parseDynamoObj(value.M);
+      return value; // For any unhandled types
     };
-    return unmarshall(item);
+
+    const result = {};
+    for (const [key, value] of Object.entries(item)) {
+      result[key] = parseValue(value);
+    }
+    
+    return result;
   }
+
 
 
   function objectToDynamodb(item) {
