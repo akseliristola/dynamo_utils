@@ -1,29 +1,34 @@
-  function parseDynamoObj(item) {
-    if (Array.isArray(item)) {
-      return item.map(parseDynamoObj);
-    }
-    
-    if (typeof item !== "object" || item === null) {
-      return item;
-    }
-
-    const parseValue = (value) => {
-      if (value.S !== undefined) return value.S;
-      if (value.N !== undefined) return Number(value.N);
-      if (value.BOOL !== undefined) return value.BOOL;
-      if (value.NULL !== undefined) return null;
-      if (value.L !== undefined) return value.L.map(parseDynamoObj);
-      if (value.M !== undefined) return parseDynamoObj(value.M);
-      return value; // For any unhandled types
-    };
-
-    const result = {};
-    for (const [key, value] of Object.entries(item)) {
-      result[key] = parseValue(value);
-    }
-    
-    return result;
+function parseDynamoObj(item) {
+  if (Array.isArray(item)) {
+    return item.map(parseDynamoObj);
   }
+  
+  if (typeof item !== "object" || item === null) {
+    return item;
+  }
+
+  const parseValue = (value) => {
+    if (value.S !== undefined) return value.S;
+    if (value.N !== undefined) return Number(value.N);
+    if (value.BOOL !== undefined) return value.BOOL;
+    if (value.NULL !== undefined) return null;
+    if (value.L !== undefined) return value.L.map(parseDynamoObj);
+    if (value.M !== undefined) return parseDynamoObj(value.M);
+    return parseDynamoObj(value); // Recursively parse any unhandled types
+  };
+
+  const keys = Object.keys(item);
+  if (keys.length === 1 && ['S', 'N', 'BOOL', 'NULL', 'L', 'M'].includes(keys[0])) {
+    return parseValue(item);
+  }
+
+  const result = {};
+  for (const [key, value] of Object.entries(item)) {
+    result[key] = parseValue(value);
+  }
+  
+  return result;
+}
 
 
 
